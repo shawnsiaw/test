@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat vs Dog Battle</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth">
+  <style>
+    body {
+      text-align: center;
+      margin-top: 50px;
+      font-family: "Amaranth", sans-serif;
+      background-image: url(imagesrenes/grid.jpg);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+  background-size: cover;
+  font-weight: bold;
+    }
+    h1 {
+        color:white;
+    }
+    #battlefield {
+      position: relative;
+      width: 800px !important;
+      height: 300px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      background-color: #f9f9f9;
+    }
+    .animal {
+      position: absolute;
+      width: 100px;
+    }
+    .cat {
+      left: 50px;
+      top: 150px;
+    }
+    .dog {
+      right: 50px;
+      top: 150px;
+    }
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    .projectile {
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    background-image: url('imagesrenes/bone.png');
+    background-size: cover; /* Ensures the image covers the entire element */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    animation: spin 0.2s linear infinite; /* Spins every 0.2 seconds */
+
+}
+    .health-bar-container {
+      position: absolute;
+      width: 100px;
+      height: 10px;
+      background-color: #ccc;
+      border: 1px solid #333;
+      top: 120px;
+    }
+    .health-bar {
+      height: 100%;
+      background-color: green;
+      transition: width 0.3s;
+    }
+    .cat-health-bar {
+      left: 50px;
+    }
+    .dog-health-bar {
+      right: 50px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    button {
+        font-size: 25px; /* Font size */
+        max-width: 100%; /* Maximum width */
+        color: white;
+        padding: 5px 20px;
+        font-weight: bold;
+        border-radius: 10px;
+        background-color: black;
+        font-family: "Amaranth", sans-serif;
+    }
+    h1 {
+        position: relative;
+        justify-content: center;
+        display: flex;
+        font-size: 60px;
+    }
+    p {
+        position: relative;
+        justify-content: center;
+        display: flex;
+        color: white;
+        font-size: 22px;
+        width: 50%;
+        left: 25%
+    }
+    #p1 {
+        position: relative;
+        justify-content: center;
+        display: flex;
+        color: white;
+        font-size: 30px;
+        top: -50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cat vs Dog Battle</h1>
+  <div class="controls">
+    <button onclick="startBattle()">Start Battle</button>
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
+  <div id="battlefield">
+    <div class="health-bar-container cat-health-bar">
+      <div id="cat-health" class="health-bar"></div>
+    </div>
+    <div class="health-bar-container dog-health-bar">
+      <div id="dog-health" class="health-bar"></div>
+    </div>
+    <img id="cat" class="animal cat" src="imagesrenes/cat.jpg" alt="Cat">
+    <img id="dog" class="animal dog" src="imagesrenes/dog.jpg   " alt="Dog">
+  </div>
+  <p>Hello i just wanted to apologize for my comment about "the blind leading the blind" regarding 3 days ago. i didn’t mean to make offend anyone, especially when you were focused on your revision. im so sorry and ill try to think before my comments next time, here's a cat vs dog game i made
+
+  </p>
+  <script>
+    let catHealth = 5;
+    let dogHealth = 5;
+    let isBattleInProgress = false;
+
+    function startBattle() {
+    if (isBattleInProgress) return; // Prevent starting another battle
+    if (catHealth <= 0 || dogHealth <= 0) {
+        alert('The battle is over! Reset the game to play again.');
+        return;
+    }
+
+    isBattleInProgress = true; // Set debounce flag
+    const choice = Math.random() < 0.5 ? 1 : 2;
+
+    if (choice === 1) {
+        catAttacksDog();
+    } else {
+        dogAttacksCat();
+    }
+}
+
+
+    function createProjectile(x, y) {
+      const projectile = document.createElement('div');
+      projectile.className = 'projectile';
+      projectile.style.left = x + 'px';
+      projectile.style.top = y + 'px';
+      document.getElementById('battlefield').appendChild(projectile);
+      return projectile;
+    }
+
+    function catAttacksDog() {
+      const cat = document.getElementById('cat');
+      const dog = document.getElementById('dog');
+      const catProjectileX = cat.offsetLeft + cat.offsetWidth; // Right side of the cat
+      const catProjectileY = cat.offsetTop + cat.offsetHeight / 2; // Middle of the height
+      const dogCenterX = dog.offsetLeft;
+      const dogCenterY = dog.offsetTop + dog.offsetHeight / 2;
+
+      const projectile = createProjectile(catProjectileX, catProjectileY);
+
+      animateProjectile(projectile, catProjectileX, catProjectileY, dogCenterX, dogCenterY, () => {
+        projectile.remove();
+        dogHealth--;
+        updateHealthBar('dog-health', dogHealth);
+        if (dogHealth <= 0) {
+          declareWinner('Cat');
+        }
+      });
+    }
+
+    function dogAttacksCat() {
+      const dog = document.getElementById('dog');
+      const cat = document.getElementById('cat');
+      const dogProjectileX = dog.offsetLeft; // Left side of the dog
+      const dogProjectileY = dog.offsetTop + dog.offsetHeight / 2; // Middle of the height
+      const catCenterX = cat.offsetLeft + cat.offsetWidth;
+      const catCenterY = cat.offsetTop + cat.offsetHeight / 2;
+
+      const projectile = createProjectile(dogProjectileX, dogProjectileY);
+
+      animateProjectile(projectile, dogProjectileX, dogProjectileY, catCenterX, catCenterY, () => {
+        projectile.remove();
+        catHealth--;
+        updateHealthBar('cat-health', catHealth);
+        if (catHealth <= 0) {
+          declareWinner('Dog');
+        }
+      });
+    }
+
+    function animateProjectile(projectile, startX, startY, targetX, targetY, onComplete) {
+    let progress = 0;
+    const duration = 1000; // Animation duration in ms
+    const interval = 10; // Update interval in ms
+    const steps = duration / interval;
+
+    const deltaX = (targetX - startX) / steps;
+    const deltaY = (targetY - startY) / steps;
+
+    const intervalId = setInterval(() => {
+        progress++;
+        const currentX = startX + deltaX * progress;
+        const currentY = startY + deltaY * progress;
+
+        projectile.style.left = currentX + 'px';
+        projectile.style.top = currentY + 'px';
+
+        if (progress >= steps) {
+            clearInterval(intervalId);
+            onComplete();
+            isBattleInProgress = false; // Reset debounce flag here
+        }
+    }, interval);
+}
+
+    function updateHealthBar(id, health) {
+      const healthBar = document.getElementById(id);
+      const healthPercentage = (health / 5) * 100;
+      healthBar.style.width = healthPercentage + '%';
+    //   if (healthPercentage <= 0) {
+    //     healthBar.style.backgroundColor = 'red';
+    //   }
+    }
+
+    function declareWinner(winner) {
+      alert(`${winner} wins the battle!`);
+    }
+
+    function resetGame() {
+      catHealth = 5;
+      dogHealth = 5;
+      updateHealthBar('cat-health', catHealth);
+      updateHealthBar('dog-health', dogHealth);
+    }
+  </script>
+</body>
+</html>
